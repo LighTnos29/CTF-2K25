@@ -12,7 +12,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 app.use(cors({
     credentials:true,
-    origin:"*"
+    origin:"http://localhost:4200"
 }))
 
 app.get("/",(req,res)=>{

@@ -12,7 +12,7 @@ module.exports.login = async (req, res) => {
         if (existingMember) {
             let token = generateToken(teamCode)
             res.cookie("token", token)
-            return res.status(200).json({ message: "Rejoined successfully" });
+            return res.status(200).json({ message: "Rejoined successfully", token });
         }
 
         if (team.members.length >= 4) {
