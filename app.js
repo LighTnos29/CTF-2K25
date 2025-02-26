@@ -5,7 +5,6 @@ const mongooseConnection = require('./config/mongooseConnection')
 const teamRouter = require('./routes/teamRouter')
 const flagRouter = require('./routes/flagRouter')
 require('dotenv').config()
-const isLoggedIn = require('./middlewares/isLoggedIn')
 const cors =require('cors')
 
 app.use(express.json())
