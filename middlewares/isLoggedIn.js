@@ -1,18 +1,19 @@
 const jwt = require("jsonwebtoken");
 
 const isLoggedIn = (req, res, next) => {
-    const token = req.cookies.token; // Get token from cookies
+    const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).json({ message: "Unauthorized. Please log in." });
+        return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_KEY); // Verify token
-        req.teamCode = decoded.teamCode; // Attach teamCode to request object
-        next(); // Move to next middleware or route
+        const decoded = jwt.verify(token, process.env.JWT_KEY); // Ensure JWT_SECRET is set in .env
+
+        req.teamCode = decoded.teamCode; // Attach teamCode to req
+        next();
     } catch (error) {
-        return res.status(401).json({ message: "Invalid or expired token. Please log in again." });
+        return res.status(403).json({ message: "Unauthorized: Invalid token" });
     }
 };
 
