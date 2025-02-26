@@ -17,6 +17,6 @@ app.get("/",(req,res)=>{
     res.send("HELLO")
 })
 app.use('/team',teamRouter)
-app.use('/flag',isLoggedIn,flagRouter)
+app.use('/flag',flagRouter)
 
 app.listen(5000)

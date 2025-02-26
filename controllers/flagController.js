@@ -1,3 +1,4 @@
+const isLoggedIn = require('../middlewares/isLoggedIn');
 const flagModel = require('../models/flagModel')
 const teamModel = require('../models/teamModel')
 const mongoose = require("mongoose");
