@@ -6,6 +6,7 @@ const teamRouter = require('./routes/teamRouter')
 const flagRouter = require('./routes/flagRouter')
 require('dotenv').config()
 const cors =require('cors')
+const leaderboardRouter = require("./routes/leaderboardRouter")
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -20,5 +21,8 @@ app.get("/",(req,res)=>{
 })
 app.use('/team',teamRouter)
 app.use('/flag',flagRouter)
+app.use('/leaderboard',leaderboardRouter)
 
-app.listen(5000)
+const PORT = process.env.PORT || 5000
+
+app.listen(PORT)

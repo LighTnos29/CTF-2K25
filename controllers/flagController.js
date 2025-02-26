@@ -13,50 +13,55 @@ module.exports.submitFlag = async (req, res) => {
     session.startTransaction();
   
     try {
-      // Fetch flag from database
-      const flag = await flagModel.findById(flagId).session(session);
-      if (!flag) {
-        await session.abortTransaction();
-        return res.status(404).json({ message: "Flag not found" });
-      }
+        // Fetch flag from database
+        const flag = await flagModel.findById(flagId).session(session);
+        if (!flag) {
+            await session.abortTransaction();
+            return res.status(404).json({ message: "Flag not found" });
+        }
   
-      // Find the team and check if the flag is already solved
-      const team = await teamModel.findOne({ teamCode }).session(session);
-      if (!team) {
-        await session.abortTransaction();
-        return res.status(404).json({ message: "Team not found" });
-      }
+        // Find the team and check if the flag is already solved
+        const team = await teamModel.findOne({ teamCode }).session(session);
+        if (!team) {
+            await session.abortTransaction();
+            return res.status(404).json({ message: "Team not found" });
+        }
   
-      // If the flag is already solved, reject the request
-      if (team.solvedFlags.includes(flagId)) {
-        await session.abortTransaction();
-        return res.status(400).json({ message: "Flag already solved by your team!" });
-      }
+        // If the flag is already solved, reject the request
+        if (team.solvedFlags.includes(flagId)) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Flag already solved by your team!" });
+        }
   
-      // If flag is correct, update score and add flag to solvedFlags
-      if (flag.correctAnswer === submittedFlag) {
-        await teamModel.updateOne(
-          { teamCode, solvedFlags: { $ne: flagId } }, // Ensure flag is not already solved
-          {
-            $inc: { points: flag.points }, // Increment points
-            $addToSet: { solvedFlags: flagId } // Add flag to solved list
-          },
-          { session }
-        );
+        // If flag is correct, update score, add flag to solvedFlags, and set lastSolvedAt timestamp
+        if (flag.correctAnswer === submittedFlag) {
+            const updatedTeam = await teamModel.findOneAndUpdate(
+                { teamCode, solvedFlags: { $ne: flagId } }, // Ensure flag is not already solved
+                {
+                    $inc: { points: flag.points }, // Increment points
+                    $addToSet: { solvedFlags: flagId }, // Add flag to solved list
+                    lastSolvedAt: new Date() // Store the timestamp of solving the flag
+                },
+                { session, new: true }
+            );
   
-        await session.commitTransaction(); // Commit transaction
-        return res.status(200).json({ message: "Correct flag!", pointsEarned: flag.points, totalScore: team.points + flag.points });
-      } else {
-        await session.abortTransaction(); // Rollback if incorrect
-        return res.status(400).json({ message: "Incorrect flag. Try again!" });
-      }
+            await session.commitTransaction(); // Commit transaction
+            return res.status(200).json({ 
+                message: "Correct flag!", 
+                pointsEarned: flag.points, 
+                totalScore: updatedTeam.points 
+            });
+        } else {
+            await session.abortTransaction(); // Rollback if incorrect
+            return res.status(400).json({ message: "Incorrect flag. Try again!" });
+        }
     } catch (error) {
-      await session.abortTransaction();
-      return res.status(500).json({ message: "Server error", error: error.message });
+        await session.abortTransaction();
+        return res.status(500).json({ message: "Server error", error: error.message });
     } finally {
-      session.endSession(); // End session
+        session.endSession(); // End session
     }
-  };
+};
 
 module.exports.allFlags = async (req, res) => {
     try {
