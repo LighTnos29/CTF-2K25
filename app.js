@@ -4,6 +4,7 @@ const app = express()
 const mongooseConnection = require('./config/mongooseConnection')
 const teamRouter = require('./routes/teamRouter')
 const flagRouter = require('./routes/flagRouter')
+const gameRouter = require('./routes/gameRouter')
 require('dotenv').config()
 const cors =require('cors')
 const leaderboardRouter = require("./routes/leaderboardRouter")
@@ -22,7 +23,8 @@ app.get("/",(req,res)=>{
 app.use('/team',teamRouter)
 app.use('/flag',flagRouter)
 app.use('/leaderboard',leaderboardRouter)
+app.use('/gamestatus',gameRouter)
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT)
+app.listen(5000)

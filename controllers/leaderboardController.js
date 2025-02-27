@@ -4,7 +4,7 @@ module.exports.getLeaderboard = async (req, res) => {
     try {
         const leaderboard = await teamModel.find({}, "teamName points lastSolvedAt")
             .sort({ points: -1, lastSolvedAt: 1 }) // Sort by points, then by earliest correct submission
-            .limit(10); // Limit to top 10 teams
+            .limit(50); // Limit to top 10 teams
 
         res.status(200).json({ leaderboard });
     } catch (error) {

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const flagSchema = new mongoose.Schema({
     title: { type: String, required: true },
     topic: { type: String, required: true },
+    question: { type: String, required: true },
     points: { type: Number, required: true },
     hint: { type: String, required: false },
     url: { type: String, required: false },
