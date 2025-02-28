@@ -13,9 +13,11 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 app.use(cors({
-    credentials:true,
-    origin:"http://localhost:4200"
-}))
+    origin: 'http://localhost:4200',  // Your Angular app's origin
+    credentials: true,                // Important for withCredentials
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 
 app.get("/",(req,res)=>{
     res.send("HELLO")
