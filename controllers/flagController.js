@@ -8,10 +8,10 @@ module.exports.submitFlag = async (req, res) => {
     const { flagId } = req.params;
     const { submittedFlag } = req.body;
     const teamCode = req.teamCode;
-  
-    const session = await mongoose.startSession(); // Start transaction
+
+    const session = await mongoose.startSession();
     session.startTransaction();
-  
+
     try {
         // Fetch flag from database
         const flag = await flagModel.findById(flagId).session(session);
@@ -19,47 +19,60 @@ module.exports.submitFlag = async (req, res) => {
             await session.abortTransaction();
             return res.status(404).json({ message: "Flag not found" });
         }
-  
-        // Find the team and check if the flag is already solved
+
+        // Fetch team from database
         const team = await teamModel.findOne({ teamCode }).session(session);
         if (!team) {
             await session.abortTransaction();
             return res.status(404).json({ message: "Team not found" });
         }
-  
-        // If the flag is already solved, reject the request
+
+        // Check if flag is already solved
         if (team.solvedFlags.includes(flagId)) {
             await session.abortTransaction();
             return res.status(400).json({ message: "Flag already solved by your team!" });
         }
-  
-        // If flag is correct, update score, add flag to solvedFlags, and set lastSolvedAt timestamp
+
+        // Initialize flag attempts if not present
+        const attemptsLeft = team.flagAttempts.get(flagId) || 0;
+
+        // Check if the team has exceeded the attempt limit (5 attempts max)
+        if (attemptsLeft >= 5) {
+            await session.abortTransaction();
+            return res.status(403).json({ message: "You have reached the maximum attempts for this flag!" });
+        }
+
+        // If flag is correct
         if (flag.correctAnswer === submittedFlag) {
-            const updatedTeam = await teamModel.findOneAndUpdate(
-                { teamCode, solvedFlags: { $ne: flagId } }, // Ensure flag is not already solved
+            await teamModel.findOneAndUpdate(
+                { teamCode },
                 {
                     $inc: { points: flag.points }, // Increment points
                     $addToSet: { solvedFlags: flagId }, // Add flag to solved list
-                    lastSolvedAt: new Date() // Store the timestamp of solving the flag
+                    lastSolvedAt: new Date(), // Update last solved time
+                    $unset: { [`flagAttempts.${flagId}`]: 1 } // Remove attempt tracking if correct
                 },
                 { session, new: true }
             );
-  
-            await session.commitTransaction(); // Commit transaction
-            return res.status(200).json({ 
-                message: "Correct flag!", 
-                pointsEarned: flag.points, 
-                totalScore: updatedTeam.points 
-            });
+
+            await session.commitTransaction();
+            return res.status(200).json({ message: "Correct flag!", pointsEarned: flag.points });
         } else {
-            await session.abortTransaction(); // Rollback if incorrect
-            return res.status(400).json({ message: "Incorrect flag. Try again!" });
+            // Increase the attempt count
+            await teamModel.findOneAndUpdate(
+                { teamCode },
+                { $inc: { [`flagAttempts.${flagId}`]: 1 } }, // Increment attempt count for this flag
+                { session, new: true }
+            );
+
+            await session.commitTransaction();
+            return res.status(400).json({ message: `Incorrect flag. Attempts left: ${4 - attemptsLeft}` });
         }
     } catch (error) {
         await session.abortTransaction();
         return res.status(500).json({ message: "Server error", error: error.message });
     } finally {
-        session.endSession(); // End session
+        session.endSession();
     }
 };
 
