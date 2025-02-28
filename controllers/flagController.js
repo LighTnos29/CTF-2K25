@@ -8,6 +8,7 @@ module.exports.submitFlag = async (req, res) => {
     const { flagId } = req.params;
     const { submittedFlag } = req.body;
     const teamCode = req.teamCode;
+    
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -90,3 +91,14 @@ module.exports.allFlags = async (req, res) => {
         return res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
+module.exports.getTeamInfo = async (req,res) =>{
+    const teamCode = req.teamCode
+    const team = await teamModel.findOne({ teamCode })
+    
+    if(!team){
+        return res.status(403).json({message:"Error , fetching data."})
+    }
+    res.status(200).json({name:team.teamName,points:team.points})
+    
+}
