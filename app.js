@@ -12,15 +12,25 @@ const leaderboardRouter = require("./routes/leaderboardRouter")
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
+const allowedOrigins = [
+  'https://www.thecloudclub.in',
+  'http://localhost:4200',
+  'https://ctf.thecloudclub.in'
+];
+
 app.use(cors({
-    origin: 'http://localhost:4200',  // Your Angular app's origin
-    credentials: true,                // Important for withCredentials
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 
 app.get("/",(req,res)=>{
-    res.send("HELLO")
+    res.send("Cannot get /cft.thecloudclub.in/")
 })
 app.use('/team',teamRouter)
 app.use('/flag',flagRouter)

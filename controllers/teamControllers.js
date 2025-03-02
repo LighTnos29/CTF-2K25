@@ -22,7 +22,13 @@ module.exports.login = async (req, res) => {
         team.members.push({ email });
         await team.save();
         let token = generateToken(teamCode)
-        res.cookie("token", token)
+        res.cookie("token", token, {
+            path: '/',
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
         return res.status(200).json({ message: "Login successful, added to the team" });
     } catch (error) {
         return res.status(500).json({ message: "Server error", error });
