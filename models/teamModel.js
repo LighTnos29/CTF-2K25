@@ -9,7 +9,7 @@ const teamSchema = new mongoose.Schema({
   lastSolvedAt: { type: Date, default: null },
   members: [
     {
-      email: { type: String, required: true, unique: true },
+      email: { type: String, required: true , sparse: true , unique: false},
     },
   ],
   flagAttempts: {
