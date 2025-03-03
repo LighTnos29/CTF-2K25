@@ -1,6 +1,10 @@
 const express = require('express')
+<<<<<<< HEAD
 const cors = require('cors');
 const { allFlags ,submitFlag,getTeamInfo } = require('../controllers/flagController')
+=======
+const { allFlags ,submitFlag, getTeamInfo } = require('../controllers/flagController')
+>>>>>>> 564e96e0bc21bd3b17e971cbc18a103ccc117cf2
 const isLoggedIn = require('../middlewares/isLoggedIn')
 const router = express.Router()
 
@@ -25,7 +29,11 @@ const corsOptions = {
   
 
 router.post('/submitflag/:flagId',isLoggedIn ,submitFlag)
+<<<<<<< HEAD
 router.get('/all',cors(corsOptions), validateOrigin,  isLoggedIn ,allFlags)
+=======
+router.get('/all', allFlags)
+>>>>>>> 564e96e0bc21bd3b17e971cbc18a103ccc117cf2
 router.get('/points',isLoggedIn,getTeamInfo)
 
 

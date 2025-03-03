@@ -7,6 +7,7 @@ module.exports.submitFlag = async (req, res) => {
     const { flagId } = req.params;
     const { submittedFlag } = req.body;
     const teamCode = req.teamCode;
+    
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -109,6 +110,7 @@ module.exports.allFlags = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 module.exports.getTeamInfo = async (req, res) => {
     const teamCode = req.teamCode;
     const team = await teamModel.findOne({ teamCode });
@@ -124,3 +126,15 @@ module.exports.getTeamInfo = async (req, res) => {
         flagAttempts: Object.fromEntries(team.flagAttempts) // Adds flag attempts without changing existing structure
     });
 };
+=======
+module.exports.getTeamInfo = async (req,res) =>{
+    const teamCode = req.teamCode
+    const team = await teamModel.findOne({ teamCode })
+    
+    if(!team){
+        return res.status(403).json({message:"Error , fetching data."})
+    }
+    res.status(200).json({name:team.teamName,points:team.points})
+    
+}
+>>>>>>> 564e96e0bc21bd3b17e971cbc18a103ccc117cf2
