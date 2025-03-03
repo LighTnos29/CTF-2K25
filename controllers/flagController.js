@@ -96,7 +96,7 @@ module.exports.submitFlag = async (req, res) => {
 
 module.exports.allFlags = async (req, res) => {
     try {
-        const flags = await flagModel.find();
+        const flags = await flagModel.find().select("-correctAnswer");
 
         if (!flags.length) {
             return res.status(404).json({ message: "No flags available" });
